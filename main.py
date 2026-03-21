@@ -27,40 +27,8 @@ def pedir_valores():
     return mapa
 
 
-
 #SITUAÇÃO: FUNCIONANDO
-def criar_Matriz_Nao_Dirigida(valores):
-    """
-    Cria uma matriz não dirigida a partir dos valores indicados pelo usuario na função pedir_valores().
-    
-    """      
-    vertices = list(valores.keys())
-    n = len(vertices)
-    
-    matriz = [[0 for _ in range(n)] for _ in range(n)]
-    
-    
-    for v in valores:
-        for proximo in valores[v]:
-            if proximo not in vertices:
-                print(f"Erro: {proximo} não existe no grafo")
-                continue
-            i = vertices.index(v)# index() é utilizado para encontrar o índice de um elemento específico em uma lista. No contexto do código, vertices.index(v) retorna o índice do vértice v na lista vertices, que é usada para acessar a posição correta na matriz de adjacência ao marcar a ligação entre os vértices.
-            j = vertices.index(proximo)
-
-            matriz[i][j] = 1
-            
-            i = vertices.index(proximo)
-            j = vertices.index(v)
-            
-            matriz[i][j] = 1
-
-
-    return matriz
-
-
-#SITUAÇÃO: FUNCIONANDO
-def criar_Matriz_Dirigida(valores):
+def criar_Matriz(valores):
     """
     Cria uma matriz dirigida a partir dos valores indicados pelo usuario na função pedir_valores().
     
@@ -508,14 +476,14 @@ def menu():
                 case 1:
                     print("================== Matriz do Grafo =================\n")
                     if tipo_grafo == 1:
-                        matriz_dirigida = criar_Matriz_Dirigida(valores)
+                        matriz_dirigida = criar_Matriz(valores)
                         print("   ", "  ".join(vertices))
 
                         for i, linha in enumerate(matriz_dirigida):#enumerate() é utilizado para obter o índice e o valor de cada item em uma lista durante a iteração. No contexto do código, for i, linha in enumerate(matriz_dirigida) permite iterar sobre cada linha da matriz de adjacência, onde i é o índice da linha (correspondente ao vértice) e linha é a própria linha da matriz. Isso é útil para imprimir a matriz de forma organizada, associando cada linha ao vértice correspondente.
                             print(vertices[i], linha)
 
                     elif tipo_grafo == 2:
-                        matriz_nao_dirigida = criar_Matriz_Nao_Dirigida(valores)
+                        matriz_nao_dirigida = criar_Matriz(valores)
                         print("   ", "  ".join(vertices))
 
                         for i, linha in enumerate(matriz_nao_dirigida):
