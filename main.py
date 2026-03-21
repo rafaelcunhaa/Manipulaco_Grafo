@@ -319,64 +319,85 @@ def conexo_ou_desconexo(valores, tipo_grafo):
             print("O grafo é desconexo")
 
 
-#SITUAÇÃO: NÃO FUNCIONANDO, FUNCIONANDO PARA GRAFOS CONEXOS, NÃO FUNCIONANDO PARA GRAFOS NÃO CONEXOS
-def fecho_trasitivo_direto(valores):
+#SITUAÇÃO: FUNCIONANDO
+def fecho_trasitivo_direto(valores, tipo_grafo):
     """
     Função para calcular o fecho transitivo direto de um vértice em um grafo.
-    Solicita o vértice para o usuário e utiliza a função varredura_Grafo_BFS
-    para encontrar todos os vértices alcançáveis a partir do vértice inicial.
+    Para grafos não dirigidos (tipo_grafo == 2): encontra todos os vértices alcançáveis a partir do vértice informado.
+    Para grafos dirigidos (tipo_grafo == 1): encontra todos os vértices que conseguem alcançar o vértice informado
+    (usando o grafo invertido).
     """
     vertice = input("Digite a vertice para calcular o fecho transitivo direto: ").strip()
-
+    
     if vertice not in valores:
         print("Vertice não encontrada")
         return
     
-    vertices = list(valores.keys())# lista de vértices do grafo, obtida a partir das chaves do dicionário valores. Essa lista é usada para encontrar o índice do vértice inicial, que é necessário para iniciar a varredura BFS a partir do vértice correto.
-    indice = vertices.index(vertice)# encontra o índice do vértice inicial na lista de vértices, para que a varredura BFS possa começar a partir desse vértice específico. O índice é usado para acessar o vértice correto na estrutura de dados do grafo durante a varredura.
+    visitados = set()
+    fila = collections.deque([vertice])
     
-    visitados = set()# set pois não permite elementos duplicados e tem operações de busca eficientes
-    for v in varredura_Grafo_BFS(valores, indice):# o for é para percorrer os vértices visitados durante a varredura BFS, e a cada vértice visitado, ele é adicionado ao conjunto de visitados. Isso permite que o código mantenha um registro de todos os vértices que foram alcançados a partir do vértice inicial durante a varredura do grafo.
-        visitados.add(v)
+    if tipo_grafo == 1:
+        # Para grafos dirigidos: criar grafo invertido e fazer BFS nele
+        # Isso encontra todas as vértices que conseguem alcançar o vértice informado
+        grafo_invertido = {v: [] for v in valores}
+        for v in valores:
+            for adj in valores[v]:
+                grafo_invertido[adj].append(v)
+        
+        while fila:
+            atual = fila.popleft()
+            if atual not in visitados:
+                visitados.add(atual)
+                for adj in grafo_invertido[atual]:
+                    if adj not in visitados:
+                        fila.append(adj)
+                        
+    elif tipo_grafo == 2:
+        # Para grafos não dirigidos: BFS normal (vértices alcançáveis)
+        while fila:
+            atual = fila.popleft()
+            if atual not in visitados:
+                visitados.add(atual)
+                for adj in valores[atual]:
+                    if adj not in visitados:
+                        fila.append(adj)
     
-    visitados.discard(vertice)  # Remove o vértice inicial do conjunto de visitados
     print(f"Fecho transitivo direto de {vertice}: {visitados}")
+    return visitados
+
     
 
 
 #SITUAÇÃO: FUNCIONANDO MAS TEM QUE TESTAR MELHOR PARA GRAFOS NÃO CONEXOS
-def fecho_trasitivo_inverso(valores):
+def fecho_trasitivo_inverso(valores,tipo_grafo):
     """
     Função para calcular o fecho transitivo inverso de um vértice em um grafo.
     Solicita o vértice para o usuário e utiliza BFS no grafo invertido
     para encontrar todos os vértices que podem alcançar o vértice inicial.
     """
     vertice = input("Digite a vertice para calcular o fecho transitivo inverso: ").strip()
+    visitados = set()
+    fila = collections.deque([vertice]) # cria uma fila, iniciando com o vértice especificado pelo usuário
     if vertice not in valores:
         print("Vertice não encontrada")
         return
     
     # Cria o grafo invertido
     invertido = {v: [] for v in valores}
-    for v in valores:
-        for vizinho in valores[v]:
-            invertido[vizinho].append(v)
-    
-    # Usa BFS no grafo invertido, similar à varredura_Grafo_BFS
-    visitados = set()
-    fila = collections.deque([vertice]) # collections.deque é utilizado para criar uma fila eficiente para a BFS, permitindo adicionar e remover elementos de forma rápida. A fila é inicializada com o vértice para o qual queremos calcular o fecho transitivo inverso, e a BFS irá explorar todos os vértices que podem alcançar esse vértice no grafo invertido.
-    
-    # O loop while continua enquanto houver vértices na fila para explorar. A cada iteração, o vértice atual é removido da fila usando popleft(), e se ainda não foi visitado, ele é marcado como visitado e seus adjacentes no grafo invertido são adicionados à fila para serem explorados posteriormente. Isso permite que a BFS encontre todos os vértices que podem alcançar o vértice inicial no grafo original, que correspondem aos vértices alcançáveis a partir do vértice inicial no grafo invertido.
-    while fila:
-        atual = fila.popleft()
-        if atual not in visitados:
-            visitados.add(atual)
-            for adjacente in invertido[atual]:
-                if adjacente not in visitados:
-                    fila.append(adjacente)
-    
-    visitados.discard(vertice)  # Remove o vértice inicial do conjunto de visitados
-    print(f"Fecho transitivo inverso de {vertice}: {visitados}")                
+
+    if tipo_grafo == 1:
+        return
+    elif tipo_grafo == 2:
+        for i in fila:
+            if i not in visitados:
+                visitados.add(i)
+                for adj in valores[i]:
+                    if adj not in visitados:
+                        fila.append(adj) 
+    vertices = list(valores.keys())
+
+    return invertido
+        
     
 def print_centralizado(texto):
     largura = shutil.get_terminal_size().columns
@@ -454,6 +475,9 @@ def menu():
         print_centralizado(menu)
         valores = pedir_valores()
         tipo_grafo = int(input("O grafo é dirigido ou não dirigido? (1 = dirigida, 2 = não dirigida): "))
+        if tipo_grafo not in [1, 2]:
+            print("Valor inválido para tipo de grafo. Por favor, insira 1 para dirigido ou 2 para não dirigido.")
+            return
         valor_inicial = 0
         vertices = list(valores.keys())
         ascii_grafo = r"""
@@ -576,12 +600,14 @@ def menu():
                 #
                 case 8:
                     print("================== Fecho Transitivo Direto =================\n")
-                    fecho_trasitivo_direto(valores)
+                    trasitivo_direto = fecho_trasitivo_direto(valores,tipo_grafo)
+                    print(trasitivo_direto)
                     print("\n====================================================\n")
                 #
                 case 9:
                     print("================== Fecho Transitivo Inverso =================\n")
-                    fecho_trasitivo_inverso(valores)
+                    trasitivo_inverso = fecho_trasitivo_inverso(valores,tipo_grafo)
+                    print(trasitivo_inverso)
                     print("\n====================================================\n")
                 #
                 case 10:
