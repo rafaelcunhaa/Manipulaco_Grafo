@@ -281,38 +281,38 @@ def remove_ligacao(valores,tipo_grafo):
 def conexo_ou_desconexo(valores, tipo_grafo):
     """
     Função para verificar se um grafo é conexo ou desconexo.
-    Para grafos não dirigidos (tipo_grafo == 2), usa a lógica de componentes desconexos.
-    Para grafos dirigidos (tipo_grafo == 1), verifica se todos os vértices são alcançáveis a partir do primeiro vértice,
-    pois um grafo dirigido é considerado conexo se houver um caminho entre qualquer par de vértices,
-    ou seja, se todos os vértices forem alcançáveis a partir de um vértice inicial. 
-    Se algum vértice não for alcançável, o grafo é considerado desconexo.
+    Para grafos dirigidos (tipo_grafo == 1): solicita um vértice
+    e verifica se o fecho transitivo direto e inverso desse vértice alcança todos os outros vértices.
+    Para grafos não dirigidos (tipo_grafo == 2): realiza uma BFS a
+    partir de um vértice e verifica se todos os vértices são visitados.
     """
-    if tipo_grafo == 2:
-        gen = varredura_Grafo_BFS(valores, 0)
-        for _ in gen: # o "_" é utilizado pois não é necessário usar o valor atual do item durante a iteração(só servira para imprimir)
-            pass
-        try:
-            nao_conexo = next(gen)# next() é utilizado para obter o próximo item de um iterador. No contexto do código, next(gen) é usado para verificar se há mais vértices a serem visitados após a varredura BFS. Se houver mais vértices, isso indica que o grafo é desconexo, e a variável nao_conexo será definida como True. Se não houver mais vértices, isso significa que todos os vértices foram visitados durante a varredura, e o grafo é conexo.
-        except StopIteration as e: # StopIteration é uma exceção que é levantada para indicar que um iterador não tem mais itens para fornecer. 
-            nao_conexo = e.value
-        
-        if nao_conexo:
-            print("O grafo é desconexo")
-        else:
+    if tipo_grafo == 1:
+        vertice = list(valores.keys())[0]  # Pega o primeiro vértice do grafo para verificar a conexidade
+
+        if vertice not in valores:
+            print("Vértice não existe")
+            return
+
+        ftd = fecho_trasitivo_direto_sem_input(valores, vertice)
+        fti = fecho_trasitivo_inverso_sem_input(valores, vertice)
+
+        if len(ftd) == len(valores) - 1 and len(fti) == len(valores) - 1:
             print("O grafo é conexo")
-    elif tipo_grafo == 1:
-        # Para grafos dirigidos, verifica se todos são alcançáveis a partir do primeiro vértice
+        else:
+            print("O grafo NÃO é conexo")
+
+    elif tipo_grafo == 2:
+        # Para não dirigido basta 1 BFS
         visitados = set()
-        fila = collections.deque([list(valores.keys())[0]]) # cria uma fila para BFS, iniciando com o primeiro vértice do grafo
-        
+        fila = collections.deque([list(valores.keys())[0]])
+
         while fila:
-            atual = fila.popleft()# popleft() é utilizado para remover e retornar o primeiro elemento da fila.
+            atual = fila.popleft()
             if atual not in visitados:
                 visitados.add(atual)
                 for adj in valores[atual]:
-                    if adj not in visitados:
-                        fila.append(adj)
-        
+                    fila.append(adj)
+
         if len(visitados) == len(valores):
             print("O grafo é conexo")
         else:
@@ -374,7 +374,7 @@ def fecho_trasitivo_direto(valores, tipo_grafo):
     
 
 
-#SITUAÇÃO: FUNCIONANDO MAS TEM QUE TESTAR MELHOR PARA GRAFOS NÃO CONEXOS
+#SITUAÇÃO: FUNCIONANDO
 def fecho_trasitivo_inverso(valores,tipo_grafo):
     """
     Função para calcular o fecho transitivo inverso de um vértice em um grafo.
@@ -419,6 +419,47 @@ def fecho_trasitivo_inverso(valores,tipo_grafo):
     print(f"Fecho transitivo inverso de {vertice}: {visitados}")
     return visitados
         
+def fecho_trasitivo_direto_sem_input(valores, vertice):
+    """
+    Função para calcular o fecho transitivo direto de um vértice em um grafo sem solicitar input do usuário.
+    Utiliza BFS para encontrar todos os vértices alcançáveis a partir do vértice informado.
+    """
+    visitados = set()
+    fila = collections.deque([vertice])
+
+    while fila:
+        atual = fila.popleft()
+        for adj in valores[atual]:
+            if adj not in visitados:
+                visitados.add(adj)
+                fila.append(adj)
+
+    visitados.discard(vertice)
+    return visitados
+
+def fecho_trasitivo_inverso_sem_input(valores, vertice):
+    """
+    Função para calcular o fecho transitivo inverso de um vértice em um grafo sem solicitar input do usuário.
+    Utiliza BFS no grafo invertido para encontrar todos os vértices que podem alcançar o vértice informado.
+    """
+    invertido = {v: [] for v in valores}
+
+    for v in valores:
+        for adj in valores[v]:
+            invertido[adj].append(v)
+
+    visitados = set()
+    fila = collections.deque([vertice])
+
+    while fila:
+        atual = fila.popleft()
+        for adj in invertido[atual]:
+            if adj not in visitados:
+                visitados.add(adj)
+                fila.append(adj)
+
+    visitados.discard(vertice)
+    return visitados
     
 def print_centralizado(texto):
     largura = shutil.get_terminal_size().columns
