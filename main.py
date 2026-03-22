@@ -328,6 +328,7 @@ def fecho_trasitivo_direto(valores, tipo_grafo):
     (usando o grafo invertido).
     """
     vertice = input("Digite a vertice para calcular o fecho transitivo direto: ").strip()
+    matriz = criar_Matriz(valores)
     
     if vertice not in valores:
         print("Vertice não encontrada")
@@ -337,23 +338,29 @@ def fecho_trasitivo_direto(valores, tipo_grafo):
     fila = collections.deque([vertice])
     
     if tipo_grafo == 1:
-        # Para grafos dirigidos: criar grafo invertido e fazer BFS nele
-        # Isso encontra todas as vértices que conseguem alcançar o vértice informado
-        grafo_invertido = {v: [] for v in valores}
-        for v in valores:
-            for adj in valores[v]:
-                grafo_invertido[adj].append(v)
-        
-        while fila:
-            atual = fila.popleft()
-            if atual not in visitados:
-                visitados.add(atual)
-                for adj in grafo_invertido[atual]:
-                    if adj not in visitados:
-                        fila.append(adj)
-                        
+        matriz = criar_Matriz(valores)
+        n = len(valores)
+
+        # Copia da matriz (para não alterar original)
+        fecho = [linha[:] for linha in matriz]
+
+        # Algoritmo de Warshall
+        for k in range(n):
+            for i in range(n):
+                for j in range(n):
+                    if fecho[i][j] == 0:
+                        fecho[i][j] = fecho[i][k] and fecho[k][j]
+
+        indice = list(valores.keys()).index(vertice)
+
+        visitados = set()
+        for j in range(n):
+            if fecho[indice][j] == 1:
+                visitados.add(list(valores.keys())[j])
+
+        print(f"Fecho transitivo direto de {vertice}: {visitados}")
+        return visitados
     elif tipo_grafo == 2:
-        # Para grafos não dirigidos: BFS normal (vértices alcançáveis)
         while fila:
             atual = fila.popleft()
             if atual not in visitados:
@@ -388,15 +395,16 @@ def fecho_trasitivo_inverso(valores,tipo_grafo):
     if tipo_grafo == 1:
         return
     elif tipo_grafo == 2:
-        for i in fila:
-            if i not in visitados:
-                visitados.add(i)
-                for adj in valores[i]:
+        while fila:
+            atual = fila.popleft()
+            if atual not in visitados:
+                visitados.add(atual)
+                for adj in valores[atual]:
                     if adj not in visitados:
-                        fila.append(adj) 
+                        fila.append(adj)
     vertices = list(valores.keys())
 
-    return invertido
+    return visitados
         
     
 def print_centralizado(texto):
