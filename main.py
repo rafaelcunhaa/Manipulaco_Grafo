@@ -359,7 +359,6 @@ def fecho_trasitivo_direto(valores, tipo_grafo):
                 visitados.add(list(valores.keys())[j])
 
         print(f"Fecho transitivo direto de {vertice}: {visitados}")
-        return visitados
     elif tipo_grafo == 2:
         while fila:
             atual = fila.popleft()
@@ -383,27 +382,41 @@ def fecho_trasitivo_inverso(valores,tipo_grafo):
     para encontrar todos os vértices que podem alcançar o vértice inicial.
     """
     vertice = input("Digite a vertice para calcular o fecho transitivo inverso: ").strip()
-    visitados = set()
-    fila = collections.deque([vertice]) # cria uma fila, iniciando com o vértice especificado pelo usuário
+
     if vertice not in valores:
         print("Vertice não encontrada")
         return
-    
-    # Cria o grafo invertido
-    invertido = {v: [] for v in valores}
+
+    visitados = set()
+    fila = collections.deque([vertice])
 
     if tipo_grafo == 1:
-        return
+        invertido = {v: [] for v in valores}
+
+        for v in valores:
+            for adj in valores[v]:
+                invertido[adj].append(v)
+
+        while fila:
+            atual = fila.popleft()
+
+            for adj in invertido[atual]:
+                if adj not in visitados:
+                    visitados.add(adj)
+                    fila.append(adj)
+
     elif tipo_grafo == 2:
         while fila:
             atual = fila.popleft()
-            if atual not in visitados:
-                visitados.add(atual)
-                for adj in valores[atual]:
-                    if adj not in visitados:
-                        fila.append(adj)
-    vertices = list(valores.keys())
 
+            for adj in valores[atual]:
+                if adj not in visitados:
+                    visitados.add(adj)
+                    fila.append(adj)
+
+    visitados.discard(vertice)
+
+    print(f"Fecho transitivo inverso de {vertice}: {visitados}")
     return visitados
         
     
