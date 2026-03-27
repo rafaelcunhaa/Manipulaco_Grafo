@@ -338,27 +338,23 @@ def fecho_trasitivo_direto(valores, tipo_grafo):
     fila = collections.deque([vertice])
     
     if tipo_grafo == 1:
-        matriz = criar_Matriz(valores)
         n = len(valores)
 
         # Copia da matriz (para não alterar original)
         fecho = [linha[:] for linha in matriz]
 
-        # Algoritmo de Warshall
-        for k in range(n):
-            for i in range(n):
-                for j in range(n):
+        # Algoritmo de Warshall, 
+        for k in range(n):#
+            for i in range(n):#
+                for j in range(n):# aqui vai verificando se existe um caminho de i para j passando por k, ou seja, se existe um caminho de i para k e de k para j. Se ambos existirem, então existe um caminho de i para j, e a matriz é atualizada para refletir isso. 
                     if fecho[i][j] == 0:
                         fecho[i][j] = fecho[i][k] and fecho[k][j]
 
         indice = list(valores.keys()).index(vertice)
-
-        visitados = set()
         for j in range(n):
             if fecho[indice][j] == 1:
                 visitados.add(list(valores.keys())[j])
 
-        print(f"Fecho transitivo direto de {vertice}: {visitados}")
     elif tipo_grafo == 2:
         while fila:
             atual = fila.popleft()
@@ -367,8 +363,6 @@ def fecho_trasitivo_direto(valores, tipo_grafo):
                 for adj in valores[atual]:
                     if adj not in visitados:
                         fila.append(adj)
-    
-    print(f"Fecho transitivo direto de {vertice}: {visitados}")
     return visitados
 
     
@@ -416,7 +410,6 @@ def fecho_trasitivo_inverso(valores,tipo_grafo):
 
     visitados.discard(vertice)
 
-    print(f"Fecho transitivo inverso de {vertice}: {visitados}")
     return visitados
         
 def fecho_trasitivo_direto_sem_input(valores, vertice):
@@ -434,7 +427,7 @@ def fecho_trasitivo_direto_sem_input(valores, vertice):
                 visitados.add(adj)
                 fila.append(adj)
 
-    visitados.discard(vertice)
+    visitados.discard(vertice)# remove o vértice inicial do conjunto de visitados, pois o fecho transitivo direto deve incluir apenas os vértices alcançáveis a partir do vértice inicial, e não o próprio vértice.
     return visitados
 
 def fecho_trasitivo_inverso_sem_input(valores, vertice):
@@ -442,9 +435,9 @@ def fecho_trasitivo_inverso_sem_input(valores, vertice):
     Função para calcular o fecho transitivo inverso de um vértice em um grafo sem solicitar input do usuário.
     Utiliza BFS no grafo invertido para encontrar todos os vértices que podem alcançar o vértice informado.
     """
-    invertido = {v: [] for v in valores}
+    invertido = {v: [] for v in valores}# cria um dicionário para armazenar o grafo invertido, onde cada chave é um vértice do grafo original e o valor é uma lista de vértices que apontam para ele.
 
-    for v in valores:
+    for v in valores:# percorre cada vértice no grafo original e para cada vértice adjacente, adiciona o vértice atual à lista de adjacentes do vértice adjacente no grafo invertido. Isso efetivamente inverte as direções das arestas do grafo.                                                                                           
         for adj in valores[v]:
             invertido[adj].append(v)
 
