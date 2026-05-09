@@ -28,7 +28,7 @@ def pedir_valores():
 
 
 #SITUAÇÃO: FUNCIONANDO
-def criar_Matriz(valores):
+def criar_Matriz(valores, tipo_grafo=1):
     """
     Cria uma matriz dirigida a partir dos valores indicados pelo usuario na função pedir_valores().
     
@@ -48,7 +48,9 @@ def criar_Matriz(valores):
             j = vertices.index(proximo)
 
             matriz[i][j] = 1
-            
+            # FIX: espelha a aresta para grafos não dirigidos
+            if tipo_grafo == 2:
+                matriz[j][i] = 1
 
 
 
@@ -100,7 +102,6 @@ def varredura_Grafo_BFS(valores,valor_inicial):
     visitados = set()
     vertices = list(valores.keys())
     fila = collections.deque([vertices[valor_inicial]]) # deque é uma fila de duas pontas 
-    nao_conexo = False
         
     while fila or len(visitados) < len(vertices):
         
@@ -108,7 +109,6 @@ def varredura_Grafo_BFS(valores,valor_inicial):
             for j in vertices:
                 if j not in visitados:
                     fila.append(j)
-                    nao_conexo = True
                     break
         vertice = fila.popleft()
        
@@ -120,8 +120,6 @@ def varredura_Grafo_BFS(valores,valor_inicial):
            for i in valores[vertice]:
                if i not in visitados:
                    fila.append(i)
-    return nao_conexo               
-
            
 
 #SITUAÇÃO: FUNCIONANDO
@@ -135,20 +133,22 @@ def adicionar_vertice(valores,tipo_grafo):
     if nova_vertice not in valores:
         ligacoes = input(f"Digite as ligações para a vertice {nova_vertice} (Ex:0,1): ").strip()
 
+        # FIX: entrada vazia agora realmente resulta em lista vazia, sem cair no split abaixo
         if ligacoes == "":
             valores[nova_vertice] = []
-        ligacoes_separadas = ligacoes.split(",")    
+        else:
+            ligacoes_separadas = ligacoes.split(",")    
 
-        if tipo_grafo == 1:
-            valores[nova_vertice] = ligacoes_separadas
+            if tipo_grafo == 1:
+                valores[nova_vertice] = ligacoes_separadas
 
-        elif tipo_grafo == 2:  
+            elif tipo_grafo == 2:  
 
-            valores[nova_vertice] = ligacoes_separadas
-            for v in ligacoes_separadas:
-                if v in valores:
-                    if nova_vertice not in valores[v]:
-                        valores[v].append(nova_vertice)    
+                valores[nova_vertice] = ligacoes_separadas
+                for v in ligacoes_separadas:
+                    if v in valores:
+                        if nova_vertice not in valores[v]:
+                            valores[v].append(nova_vertice)    
     else:
         print("Valor digitado já existe no grafo")
         return       
@@ -328,7 +328,7 @@ def fecho_trasitivo_direto(valores, tipo_grafo):
     (usando o grafo invertido).
     """
     vertice = input("Digite a vertice para calcular o fecho transitivo direto: ").strip()
-    matriz = criar_Matriz(valores)
+    matriz = criar_Matriz(valores, tipo_grafo)
     
     if vertice not in valores:
         print("Vertice não encontrada")
@@ -555,14 +555,14 @@ def menu():
                 case 1:
                     print("================== Matriz do Grafo =================\n")
                     if tipo_grafo == 1:
-                        matriz_dirigida = criar_Matriz(valores)
+                        matriz_dirigida = criar_Matriz(valores, tipo_grafo)
                         print("   ", "  ".join(vertices))
 
                         for i, linha in enumerate(matriz_dirigida):#enumerate() é utilizado para obter o índice e o valor de cada item em uma lista durante a iteração. No contexto do código, for i, linha in enumerate(matriz_dirigida) permite iterar sobre cada linha da matriz de adjacência, onde i é o índice da linha (correspondente ao vértice) e linha é a própria linha da matriz. Isso é útil para imprimir a matriz de forma organizada, associando cada linha ao vértice correspondente.
                             print(vertices[i], linha)
 
                     elif tipo_grafo == 2:
-                        matriz_nao_dirigida = criar_Matriz(valores)
+                        matriz_nao_dirigida = criar_Matriz(valores, tipo_grafo)
                         print("   ", "  ".join(vertices))
 
                         for i, linha in enumerate(matriz_nao_dirigida):
@@ -682,5 +682,3 @@ def menu():
 
 
 menu()
-    
-    
