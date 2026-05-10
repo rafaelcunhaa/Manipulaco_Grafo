@@ -1,5 +1,9 @@
 import collections
 import shutil
+import networkx as nx
+import matplotlib.pyplot as plt
+import tkinter as tk
+import random
 
 #SITUAÇÃO: FUNCIONANDO
 def pedir_valores():
@@ -454,6 +458,221 @@ def fecho_trasitivo_inverso_sem_input(valores, vertice):
     visitados.discard(vertice)
     return visitados
     
+
+def colorir_grafo(valores, tipo_grafo):
+    """
+    Função para colorir o grafo usando um algoritmo de coloração de grafos.
+    A função atribui cores aos vértices de forma que vértices adjacentes
+    não compartilhem a mesma cor. O resultado é um dicionário onde as chaves
+    são os vértices e os valores são as cores atribuídas a cada vértice.
+    """
+    coloracao = {}  # Dicionário
+    # Ordena por maior grau
+    vertices_ordenados = sorted(valores,key=lambda v: len(valores[v]),reverse=True) 
+
+    for v in vertices_ordenados:  # Itera sobre cada vértice ordenado
+        vizinhos = set(valores[v])  # Conjunto de vizinhos diretos do vértice v
+
+        if tipo_grafo == 1:  # Se o grafo for dirigido
+            # Para grafos dirigidos, considerar também os vértices que apontam para v
+            for u in valores:  # Itera sobre todos os vértices
+                if v in valores[u]:  # Se u aponta para v
+                    vizinhos.add(u)  # Adiciona u aos vizinhos (considerando arestas de entrada)
+
+        cores_adjacentes = {coloracao[adj] for adj in vizinhos if adj in coloracao}  # Conjunto das cores já usadas pelos vizinhos coloridos
+        cor = 1  # Começa com a cor 1
+        while cor in cores_adjacentes:  # Enquanto a cor atual estiver sendo usada por um vizinho
+            cor += 1  # Incrementa a cor
+        coloracao[v] = cor  # Atribui a cor ao vértice v
+    print(f"Número de cores usadas: {max(coloracao.values())}")
+
+    visualizar_grafo_interativo(# Imprime o cabeçalho da coloração
+        valores,
+        tipo_grafo,
+        coloracao
+    ) 
+    for vertice, cor in coloracao.items():  # Itera sobre o dicionário de coloração
+        print(f"Vértice {vertice}: Cor {cor}")  # Imprime a cor de cada vértice
+
+def visualizar_grafo_interativo(valores, tipo_grafo, coloracao=None):
+
+    janela = tk.Tk()
+    janela.title("Visualização Interativa do Grafo")
+
+    largura = 1000
+    altura = 700
+    raio = 30
+
+    canvas = tk.Canvas(
+        janela,
+        width=largura,
+        height=altura,
+        bg="white"
+    )
+
+    canvas.pack()
+
+    # =========================
+    # POSIÇÕES INICIAIS
+    # =========================
+
+    posicoes = {}
+
+    for vertice in valores:
+        posicoes[vertice] = [
+            random.randint(100, 900),
+            random.randint(100, 600)
+        ]
+
+    vertices_canvas = {}
+
+    # =========================
+    # MAPA DE CORES
+    # =========================
+
+    mapa_cores = {
+        1: "red",
+        2: "blue",
+        3: "green",
+        4: "yellow",
+        5: "orange",
+        6: "purple",
+        7: "pink",
+        8: "cyan"
+    }
+
+    # =========================
+    # DESENHAR ARESTAS
+    # =========================
+
+    def desenhar_arestas():
+
+        canvas.delete("aresta")
+
+        desenhadas = set()
+
+        for v in valores:
+
+            x1, y1 = posicoes[v]
+
+            for adj in valores[v]:
+
+                if tipo_grafo == 2:
+                    if (adj, v) in desenhadas:
+                        continue
+
+                x2, y2 = posicoes[adj]
+
+                canvas.create_line(
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                    width=2,
+                    fill="black",
+                    tags="aresta"
+                )
+
+                desenhadas.add((v, adj))
+
+    # =========================
+    # DESENHAR VÉRTICES
+    # =========================
+
+    def desenhar_vertices():
+
+        for v in posicoes:
+
+            x, y = posicoes[v]
+
+            # Cor do vértice
+            cor = "lightblue"
+
+            if coloracao and v in coloracao:
+                cor = mapa_cores.get(
+                    coloracao[v],
+                    "gray"
+                )
+
+            circulo = canvas.create_oval(
+                x - raio,
+                y - raio,
+                x + raio,
+                y + raio,
+                fill=cor,
+                outline="black",
+                width=2
+            )
+
+            texto = canvas.create_text(
+                x,
+                y,
+                text=v,
+                font=("Arial", 14, "bold")
+            )
+
+            vertices_canvas[circulo] = v
+            vertices_canvas[texto] = v
+
+    # =========================
+    # ARRASTAR
+    # =========================
+
+    vertice_selecionado = None
+
+    def clicar(event):
+
+        nonlocal vertice_selecionado
+
+        item = canvas.find_closest(
+            event.x,
+            event.y
+        )[0]
+
+        if item in vertices_canvas:
+            vertice_selecionado = vertices_canvas[item]
+
+    def mover(event):
+
+        if vertice_selecionado:
+
+            posicoes[vertice_selecionado] = [
+                event.x,
+                event.y
+            ]
+
+            canvas.delete("all")
+
+            desenhar_arestas()
+            desenhar_vertices()
+
+    def soltar(event):
+
+        nonlocal vertice_selecionado
+
+        vertice_selecionado = None
+
+    # =========================
+    # EVENTOS
+    # =========================
+
+    canvas.bind("<Button-1>", clicar)
+
+    canvas.bind("<B1-Motion>", mover)
+
+    canvas.bind("<ButtonRelease-1>", soltar)
+
+    # =========================
+    # DESENHO INICIAL
+    # =========================
+
+    desenhar_arestas()
+    desenhar_vertices()
+
+    janela.mainloop()
+
+
+
 def print_centralizado(texto):
     largura = shutil.get_terminal_size().columns
     for linha in texto.split("\n"):
@@ -505,6 +724,11 @@ def mostrar_desenhos():
     # Print desenhos lado a lado
     for i in range(max_linhas):
         print(f"{desenho1[i]:40}{desenho2[i]:40}{desenho3[i]:40}")
+
+
+
+
+    
 def menu():
     """
     Menu que inicializa pedindo os valores dos vértices para o usuário,
@@ -547,7 +771,7 @@ def menu():
             #print("===================================================================================================================================================================================\n")       
             print_centralizado(ascii_grafo)
             #print("===================================================================================================================================================================================\n")
-            print("O que deseja fazer? \n 1 = Criar matriz \n 2 = Varredura do grafo \n 3 = Adicionar vertice \n 4 = Adicionar ligação \n 5 = Remover vertice \n 6 = Remover ligação \n 7 = Verificar se o grafo é conexo ou desconexo \n 8 = Fecho transitivo direto \n 9 = Fecho transitivo inverso \n 10 = Autores")
+            print("O que deseja fazer? \n 1 = Criar matriz \n 2 = Varredura do grafo \n 3 = Adicionar vertice \n 4 = Adicionar ligação \n 5 = Remover vertice \n 6 = Remover ligação \n 7 = Verificar se o grafo é conexo ou desconexo \n 8 = Fecho transitivo direto \n 9 = Fecho transitivo inverso \n 10 = Colorir grafo \n 11 = Autores")
             valor_case = int(input("Opção: "))
             match valor_case:
 
@@ -666,9 +890,21 @@ def menu():
                     print("\n====================================================\n")
                 #
                 case 10:
+                    print("================== Colorir Grafo =================\n")
+                    colorir_grafo(valores,tipo_grafo)
+                    print("\n====================================================\n")
+
+                case 11:
                     print("================== Autores =================\n")
                     mostrar_desenhos()
                     print("\n====================================================\n")
+
+                case 12:
+
+                        visualizar_grafo_interativo(
+                        valores,
+                        tipo_grafo
+                        )
                 case _:
                     print("Valor inserido invalido ")                                
 
