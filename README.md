@@ -139,7 +139,6 @@ Funcionalidades da interface:
 - Rafael Cunha
 - Gabriel Laus
 - Guilherme Thomy
-- Representação visual de grafos dirigidos e não dirigidos
 
 
 
