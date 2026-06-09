@@ -4,6 +4,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import tkinter as tk
 import random
+import json
+import heapq
 
 #SITUAÇÃO: FUNCIONANDO
 def pedir_valores():
@@ -672,6 +674,60 @@ def visualizar_grafo_interativo(valores, tipo_grafo, coloracao=None):
     janela.mainloop()
 
 
+def Algoritmo_A(valores, tipo_grafo, inicio, fim):
+    """
+    Função para implementar o Algoritmo A* para encontrar o caminho mais curto entre dois vértices em um grafo.
+    Utiliza uma fila de prioridade para explorar os vértices com base na soma do custo acumulado e da heurística.
+    O resultado é o caminho mais curto do vértice de início ao vértice de destino, ou uma mensagem indicando que não há caminho.
+    """
+    # Implementação do Algoritmo A* aqui
+    with open("distancias.json", "r", encoding="utf-8") as f:
+        grafo = json.load(f)
+    with open("ibge.json", "r", encoding="utf-8") as f:
+        heuristicas = json.load(f)
+    with open("capitais.json", "r", encoding="utf-8") as f:
+        capitais = json.load(f)
+    
+    abertos = []
+    heapd.heappush(abertos, (0 + heuristicas[inicio], 0, inicio, [inicio]))  # (f(n), g(n), vértice atual, caminho)
+
+    fechados = set()
+
+    custos_g = {}
+    custos_g[inicio] = 0
+    pais = {}
+
+    while abertos:
+        _, atual = heapq.heappop(abertos)
+
+        fechados.append(atual)
+
+        print("Visitando:", atual)
+        print("Abertos:", [cidade for _, cidade in abertos])
+        print("Fechados:", fechados)
+
+        if atual == fim:
+            caminho = []
+
+            while atual in pais:
+                caminho.append(atual)
+                atual = pais[atual]
+            caminho.append(inicio)
+            caminho.reverse()
+
+            return caminho, custos_g[fim]
+        
+        for vizinho, distancia in grafo[atual].items():
+            novo_custo = custos_g[atual] + distancia
+
+            if vizinho not in custos_g or novo_custo < custos_g[vizinho]:
+                custos_g[vizinho] = novo_custo
+                f_n = novo_custo + heuristicas[vizinho]
+                heapq.heappush(abertos, (f_n, vizinho))
+                pais[vizinho] = atual
+
+    return None
+
 
 def print_centralizado(texto):
     largura = shutil.get_terminal_size().columns
@@ -771,7 +827,7 @@ def menu():
             #print("===================================================================================================================================================================================\n")       
             print_centralizado(ascii_grafo)
             #print("===================================================================================================================================================================================\n")
-            print("O que deseja fazer? \n 1 = Criar matriz \n 2 = Varredura do grafo \n 3 = Adicionar vertice \n 4 = Adicionar ligação \n 5 = Remover vertice \n 6 = Remover ligação \n 7 = Verificar se o grafo é conexo ou desconexo \n 8 = Fecho transitivo direto \n 9 = Fecho transitivo inverso \n 10 = Colorir grafo \n 11 = Autores")
+            print("O que deseja fazer? \n 1 = Criar matriz \n 2 = Varredura do grafo \n 3 = Adicionar vertice \n 4 = Adicionar ligação \n 5 = Remover vertice \n 6 = Remover ligação \n 7 = Verificar se o grafo é conexo ou desconexo \n 8 = Fecho transitivo direto \n 9 = Fecho transitivo inverso \n 10 = Colorir grafo \n 11 = Algoritmo A* \n 12 = Autores")
             valor_case = int(input("Opção: "))
             match valor_case:
 
@@ -894,19 +950,31 @@ def menu():
                     colorir_grafo(valores,tipo_grafo)
                     print("\n====================================================\n")
 
+
                 case 11:
-                    print("================== Autores =================\n")
-                    mostrar_desenhos()
-                    print("\n====================================================\n")
+                    inicio = input("Digite o vértice de início para o Algoritmo A*: ").strip()
+                    fim = input("Digite o vértice de destino para o Algoritmo A*: ").strip()
+
+                    if inicio not in valores or fim not in valores:
+                        print("Vértice de início ou destino não encontrado no grafo.")
+                        continue
+
+                    resultado = Algoritmo_A(valores, tipo_grafo, inicio, fim)
+
+                    if resultado:
+                        caminho, custo = resultado
+                        print(f"Caminho mais curto de {inicio} a {fim}: {' -> '.join(caminho)} (Custo: {custo})")
+                    else:
+                        print(f"Não há caminho de {inicio} a {fim}.")
 
                 case 12:
-
-                        visualizar_grafo_interativo(
-                        valores,
-                        tipo_grafo
-                        )
+                    print("================== Autores =================\n")
+                    mostrar_desenhos()
+                    print("\n====================================================\n")                            
                 case _:
-                    print("Valor inserido invalido ")                                
+                    print("Valor inserido invalido ")        
+
+                    
 
         
     except ValueError:
