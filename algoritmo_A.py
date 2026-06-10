@@ -47,7 +47,7 @@ def _aplicar_congestionamento(grafo: dict, congestionamentos: dict) -> dict:
     O espelhamento (b→a) é feito automaticamente.
     """
     import copy
-    grafo_c = copy.deepcopy(grafo)
+    grafo_c = copy.deepcopy(grafo) # para não alterar o grafo original
 
     for (a, b), fator in congestionamentos.items():
         if a in grafo_c and b in grafo_c[a]:
@@ -97,7 +97,7 @@ def _astar_core(grafo: dict, heuristicas: dict, inicio: str, fim: str):
 
     while abertos_heap:
         f_atual, g_atual, atual, caminho = heapq.heappop(abertos_heap)
-        abertos_set.discard(atual)
+        abertos_set.discard(atual) # remove do set de abertos
 
         # Nó já processado com custo melhor → ignorar
         if atual in fechados_set:
@@ -242,8 +242,15 @@ def _comparar_cenarios(caminho_normal, custo_normal,
 # ===========================================================================
 
 def _listar_capitais(grafo: dict):
-    """Lista as capitais disponíveis no grafo."""
-    capitais = sorted(grafo.keys())
+    """Lista as capitais na ordem definida em capitais.json."""
+    try:
+        with open("capitais.json", "r", encoding="utf-8") as f:
+            capitais = json.load(f)
+        # Garante que só lista cidades que existem no grafo carregado
+        capitais = [c for c in capitais if c in grafo]
+    except FileNotFoundError:
+        # Fallback: ordem alfabética caso o arquivo não esteja presente
+        capitais = sorted(grafo.keys())
     print("\n  Capitais disponíveis:")
     for i, c in enumerate(capitais, 1):
         print(f"    {i:>2}. {c}")
