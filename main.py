@@ -1,11 +1,14 @@
 import collections
 import shutil
+from unittest import case
 import networkx as nx
 import matplotlib.pyplot as plt
 import tkinter as tk
 import random
 import json
 import heapq
+
+from algoritmo_A import Algoritmo_A
 
 #SITUAÇÃO: FUNCIONANDO
 def pedir_valores():
@@ -674,61 +677,6 @@ def visualizar_grafo_interativo(valores, tipo_grafo, coloracao=None):
     janela.mainloop()
 
 
-def Algoritmo_A(valores, tipo_grafo, inicio, fim):
-    """
-    Função para implementar o Algoritmo A* para encontrar o caminho mais curto entre dois vértices em um grafo.
-    Utiliza uma fila de prioridade para explorar os vértices com base na soma do custo acumulado e da heurística.
-    O resultado é o caminho mais curto do vértice de início ao vértice de destino, ou uma mensagem indicando que não há caminho.
-    """
-    # Implementação do Algoritmo A* aqui
-    with open("distancias.json", "r", encoding="utf-8") as f:
-        grafo = json.load(f)
-    with open("ibge.json", "r", encoding="utf-8") as f:
-        heuristicas = json.load(f)
-    with open("capitais.json", "r", encoding="utf-8") as f:
-        capitais = json.load(f)
-    
-    abertos = []
-    heapd.heappush(abertos, (0 + heuristicas[inicio], 0, inicio, [inicio]))  # (f(n), g(n), vértice atual, caminho)
-
-    fechados = set()
-
-    custos_g = {}
-    custos_g[inicio] = 0
-    pais = {}
-
-    while abertos:
-        _, atual = heapq.heappop(abertos)
-
-        fechados.append(atual)
-
-        print("Visitando:", atual)
-        print("Abertos:", [cidade for _, cidade in abertos])
-        print("Fechados:", fechados)
-
-        if atual == fim:
-            caminho = []
-
-            while atual in pais:
-                caminho.append(atual)
-                atual = pais[atual]
-            caminho.append(inicio)
-            caminho.reverse()
-
-            return caminho, custos_g[fim]
-        
-        for vizinho, distancia in grafo[atual].items():
-            novo_custo = custos_g[atual] + distancia
-
-            if vizinho not in custos_g or novo_custo < custos_g[vizinho]:
-                custos_g[vizinho] = novo_custo
-                f_n = novo_custo + heuristicas[vizinho]
-                heapq.heappush(abertos, (f_n, vizinho))
-                pais[vizinho] = atual
-
-    return None
-
-
 def print_centralizado(texto):
     largura = shutil.get_terminal_size().columns
     for linha in texto.split("\n"):
@@ -800,183 +748,142 @@ def menu():
     e cria as matrizes direcionada e não direcionada.
     """
     try:
-        menu = """
-            █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█
-            █░░╦─╦╔╗╦─╔╗╔╗╔╦╗╔╗░░█
-            █░░║║║╠─║─║─║║║║║╠─░░█
-            █░░╚╩╝╚╝╚╝╚╝╚╝╩─╩╚╝░░█
-            █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█
-        """
-        print_centralizado(menu)
-        valores = pedir_valores()
-        tipo_grafo = int(input("O grafo é dirigido ou não dirigido? (1 = dirigida, 2 = não dirigida): "))
-        if tipo_grafo not in [1, 2]:
-            print("Valor inválido para tipo de grafo. Por favor, insira 1 para dirigido ou 2 para não dirigido.")
-            return
-        valor_inicial = 0
-        vertices = list(valores.keys())
-        ascii_grafo = r"""
-         ██████╗ ██████╗  █████╗ ███████╗ ██████╗ 
-        ██╔════╝ ██╔══██╗██╔══██╗██╔════╝██╔═══██╗
-        ██║  ███╗██████╔╝███████║█████╗  ██║   ██║
-        ██║   ██║██╔══██╗██╔══██║██╔══╝  ██║   ██║
-        ╚██████╔╝██║  ██║██║  ██║██║     ╚██████╔╝
-         ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝      ╚═════╝ 
-        """
-        while True: 
-            #print("===================================================================================================================================================================================\n")       
-            print_centralizado(ascii_grafo)
-            #print("===================================================================================================================================================================================\n")
-            print("O que deseja fazer? \n 1 = Criar matriz \n 2 = Varredura do grafo \n 3 = Adicionar vertice \n 4 = Adicionar ligação \n 5 = Remover vertice \n 6 = Remover ligação \n 7 = Verificar se o grafo é conexo ou desconexo \n 8 = Fecho transitivo direto \n 9 = Fecho transitivo inverso \n 10 = Colorir grafo \n 11 = Algoritmo A* \n 12 = Autores")
-            valor_case = int(input("Opção: "))
-            match valor_case:
-
-                #CRIAÇÃO DA MATRIZ
+        while True:
+            menu = """
+                █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█
+                █░░╦─╦╔╗╦─╔╗╔╗╔╦╗╔╗░░█
+                █░░║║║╠─║─║─║║║║║╠─░░█
+                █░░╚╩╝╚╝╚╝╚╝╚╝╩─╩╚╝░░█
+                █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█
+            """
+            print_centralizado(menu)
+            match valor_inicio := int(input("Deseja usar o algoritmo padrão de grafos ou Algoritmo A*? (1 = padrão, 2 = A*, 0 = sair): ")):
                 case 1:
-                    print("================== Matriz do Grafo =================\n")
-                    if tipo_grafo == 1:
-                        matriz_dirigida = criar_Matriz(valores, tipo_grafo)
-                        print("   ", "  ".join(vertices))
-
-                        for i, linha in enumerate(matriz_dirigida):#enumerate() é utilizado para obter o índice e o valor de cada item em uma lista durante a iteração. No contexto do código, for i, linha in enumerate(matriz_dirigida) permite iterar sobre cada linha da matriz de adjacência, onde i é o índice da linha (correspondente ao vértice) e linha é a própria linha da matriz. Isso é útil para imprimir a matriz de forma organizada, associando cada linha ao vértice correspondente.
-                            print(vertices[i], linha)
-
-                    elif tipo_grafo == 2:
-                        matriz_nao_dirigida = criar_Matriz(valores, tipo_grafo)
-                        print("   ", "  ".join(vertices))
-
-                        for i, linha in enumerate(matriz_nao_dirigida):
-                            print(vertices[i], linha)        
-                    else:
-                        print("Valor invalida")
-                        continue           
-                    print("\n====================================================\n")             
-                
-                #VARREDURA DO GRAFO
-                case 2:
-                    varredura = int(input("Queres preocurar um valor ou queres fazer uma varredura geral DFS ou BFS(1 = procurar valor especifico, 2 = DFS, 3 = BFS)"))
-                    if varredura == 1:
-                        valor_procurado = input("Qual valor queres preocurar: ")
-                        if valor_procurado not in valores:
-                            print(f"Valor {valor_procurado} não está no grafo")
+                    valores = pedir_valores()
+                    tipo_grafo = int(input("O grafo é dirigido ou não dirigido? (1 = dirigida, 2 = não dirigida): ").strip())
+                    if tipo_grafo not in [1, 2]:
+                        print("Valor inválido para tipo de grafo. Por favor, insira 1 para dirigido ou 2 para não dirigido.")
+                        continue
+                    valor_inicial = 0
+                    vertices = list(valores.keys())
+                    ascii_grafo = r"""
+                     ██████╗ ██████╗  █████╗ ███████╗ ██████╗ 
+                    ██╔════╝ ██╔══██╗██╔══██╗██╔════╝██╔═══██╗
+                    ██║  ███╗██████╔╝███████║█████╗  ██║   ██║
+                    ██║   ██║██╔══██╗██╔══██║██╔══╝  ██║   ██║
+                    ╚██████╔╝██║  ██║██║  ██║██║     ╚██████╔╝
+                     ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝      ╚═════╝ 
+                    """
+                    while True:
+                        #print("===================================================================================================================================================================================\n")       
+                        print_centralizado(ascii_grafo)
+                        #print("===================================================================================================================================================================================\n")
+                        print("O que deseja fazer? \n 1 = Criar matriz \n 2 = Varredura do grafo \n 3 = Adicionar vertice \n 4 = Adicionar ligação \n 5 = Remover vertice \n 6 = Remover ligação \n 7 = Verificar se o grafo é conexo ou desconexo \n 8 = Fecho transitivo direto \n 9 = Fecho transitivo inverso \n 10 = Colorir grafo \n 11 = Autores \n 0 = Voltar ao menu inicial")
+                        valor_case = input("Opção: ").strip()
+                        if not valor_case.isdigit():
+                            print("Valor inserido inválido. Digite um número.")
                             continue
-                
-                        print("\n================= DFS =================\n")
-                
-                        if any(v == valor_procurado for v in varredura_Grafo_DFS(valores,valor_inicial)):# any() consome o gerador e para assim que encontrar o valor TRUE ou FALSE
-                    
-                            print(f"\n           Valor {valor_procurado} existe no grafo")
-                        else:
-                    
-                            print(f"\n           Valor {valor_procurado} NÃO foi encontrado no DFS")
-                    
-                        print("\n=======================================\n")
-                
-                
-                        print("\n================= BFS =================\n")
-                        if any(v == valor_procurado for v in varredura_Grafo_BFS(valores,valor_inicial)):# mesma coisa do DFS 
-                    
-                            print(f"\n           Valor {valor_procurado} existe no grafo")
-                            continue    
-                    
-                        else:
-                    
-                            print(f"\n           Valor {valor_procurado} NÃO foi encontrado no BFS")   
-                            continue    
-                        print("\n=======================================\n")
-
-                    elif varredura == 2:
-                        print("\n====================Varredura do Grafo DFS (Geral)===========================\n   ")
-                        for _ in varredura_Grafo_DFS(valores,valor_inicial): # o "_" é utilizado pois não é necessário usar o valor atual do item durante a iteração(só servira para imprimir)
-                            pass
-    
-                        print("\n==============================================================================\n") 
-                        continue
-
-                    elif varredura == 3:
-                        print("\n=====================Varredura do Grafo BFS (Geral)========================\n    ")
-                
-                        for _ in varredura_Grafo_BFS(valores,valor_inicial): # o "_" é utilizado pois não é necessário usar o valor atual do item durante a iteração(só servira para imprimir)
-                            pass
-                
-                        print("\n============================================================================\n")
-                        continue
-
-
-                #ADICIONAR VERTICE 
-                case 3:
-                    print("================== Adicionar Vertice =================\n")
-                    adicionar_vertice(valores,tipo_grafo)
-                    vertices = list(valores.keys())
+                        valor_case = int(valor_case)
+                        match valor_case:
+                            case 0:
+                                print("Voltando ao menu inicial...\n")
+                                break
+                            case 1:
+                                print("================== Matriz do Grafo =================\n")
+                                if tipo_grafo == 1:
+                                    matriz_dirigida = criar_Matriz(valores, tipo_grafo)
+                                    print("   ", "  ".join(vertices))
+                                    for i, linha in enumerate(matriz_dirigida):
+                                        print(vertices[i], linha)
+                                else:
+                                    matriz_nao_dirigida = criar_Matriz(valores, tipo_grafo)
+                                    print("   ", "  ".join(vertices))
+                                    for i, linha in enumerate(matriz_nao_dirigida):
+                                        print(vertices[i], linha)
+                                print("\n====================================================\n")
+                            case 2:
+                                varredura = int(input("Queres procurar um valor ou queres fazer uma varredura geral DFS ou BFS (1 = procurar valor especifico, 2 = DFS, 3 = BFS): ").strip())
+                                if varredura == 1:
+                                    valor_procurado = input("Qual valor queres procurar: ").strip()
+                                    if valor_procurado not in valores:
+                                        print(f"Valor {valor_procurado} não está no grafo")
+                                        continue
+                                    print("\n================= DFS =================\n")
+                                    if any(v == valor_procurado for v in varredura_Grafo_DFS(valores, valor_inicial)):
+                                        print(f"\n           Valor {valor_procurado} existe no grafo")
+                                    else:
+                                        print(f"\n           Valor {valor_procurado} NÃO foi encontrado no DFS")
+                                    print("\n=======================================\n")
+                                    print("\n================= BFS =================\n")
+                                    if any(v == valor_procurado for v in varredura_Grafo_BFS(valores, valor_inicial)):
+                                        print(f"\n           Valor {valor_procurado} existe no grafo")
+                                    else:
+                                        print(f"\n           Valor {valor_procurado} NÃO foi encontrado no BFS")
+                                    print("\n=======================================\n")
+                                elif varredura == 2:
+                                    print("\n====================Varredura do Grafo DFS (Geral)===========================\n   ")
+                                    for _ in varredura_Grafo_DFS(valores, valor_inicial):
+                                        pass
+                                    print("\n==============================================================================\n")
+                                elif varredura == 3:
+                                    print("\n=====================Varredura do Grafo BFS (Geral)========================\n    ")
+                                    for _ in varredura_Grafo_BFS(valores, valor_inicial):
+                                        pass
+                                    print("\n============================================================================\n")
+                                else:
+                                    print("Opção inválida para varredura.")
+                            case 3:
+                                print("================== Adicionar Vertice =================\n")
+                                adicionar_vertice(valores, tipo_grafo)
+                                vertices = list(valores.keys())
+                                print("\n====================================================\n")
+                            case 4:
+                                print("================== Adicionar Ligação =================\n")
+                                adicionar_ligacao(valores, tipo_grafo)
+                                vertices = list(valores.keys())
+                                print("\n====================================================\n")
+                            case 5:
+                                print("================== Remover Vertice =================\n")
+                                remove_vertice(valores)
+                                vertices = list(valores.keys())
+                                print("\n====================================================\n")
+                            case 6:
+                                print("================== Remover Ligação =================\n")
+                                remove_ligacao(valores, tipo_grafo)
+                                vertices = list(valores.keys())
+                                print("\n====================================================\n")
+                            case 7:
+                                print("================== Verificar se o grafo é conexo ou desconexo =================\n")
+                                conexo_ou_desconexo(valores, tipo_grafo)
+                                print("\n====================================================\n")
+                            case 8:
+                                print("================== Fecho Transitivo Direto =================\n")
+                                trasitivo_direto = fecho_trasitivo_direto(valores, tipo_grafo)
+                                print(trasitivo_direto)
+                                print("\n====================================================\n")
+                            case 9:
+                                print("================== Fecho Transitivo Inverso =================\n")
+                                trasitivo_inverso = fecho_trasitivo_inverso(valores, tipo_grafo)
+                                print(trasitivo_inverso)
+                                print("\n====================================================\n")
+                            case 10:
+                                print("================== Colorir Grafo =================\n")
+                                colorir_grafo(valores, tipo_grafo)
+                                print("\n====================================================\n")
+                            case 11:
+                                print("================== Autores =================\n")
+                                mostrar_desenhos()
+                                print("\n====================================================\n")
+                            case _:
+                                print("Valor inserido invalido ")
+                case 2:
+                    print("================== Algoritmo A* =================")
+                    resultado = Algoritmo_A()
                     print("\n====================================================\n")
-                #    
-                case 4:
-                    print("================== Adicionar Ligação =================\n")
-                    adicionar_ligacao(valores,tipo_grafo)
-                    vertices = list(valores.keys())
-                    print("\n====================================================\n")
-                #
-                case 5:
-                    print("================== Remover Vertice =================\n")
-                    remove_vertice(valores)
-                    vertices = list(valores.keys())
-                    print("\n====================================================\n")
-                #
-                case 6:
-                    print("================== Remover Ligação =================\n") 
-                    remove_ligacao(valores,tipo_grafo)
-                    vertices = list(valores.keys())
-                    print("\n====================================================\n")   
-                #
-                case 7:
-                    print("================== Verificar se o grafo é conexo ou desconexo =================\n")
-                    conexo_ou_desconexo(valores,tipo_grafo)
-                    print("\n====================================================\n")
-                #
-                case 8:
-                    print("================== Fecho Transitivo Direto =================\n")
-                    trasitivo_direto = fecho_trasitivo_direto(valores,tipo_grafo)
-                    print(trasitivo_direto)
-                    print("\n====================================================\n")
-                #
-                case 9:
-                    print("================== Fecho Transitivo Inverso =================\n")
-                    trasitivo_inverso = fecho_trasitivo_inverso(valores,tipo_grafo)
-                    print(trasitivo_inverso)
-                    print("\n====================================================\n")
-                #
-                case 10:
-                    print("================== Colorir Grafo =================\n")
-                    colorir_grafo(valores,tipo_grafo)
-                    print("\n====================================================\n")
-
-
-                case 11:
-                    inicio = input("Digite o vértice de início para o Algoritmo A*: ").strip()
-                    fim = input("Digite o vértice de destino para o Algoritmo A*: ").strip()
-
-                    if inicio not in valores or fim not in valores:
-                        print("Vértice de início ou destino não encontrado no grafo.")
-                        continue
-
-                    resultado = Algoritmo_A(valores, tipo_grafo, inicio, fim)
-
-                    if resultado:
-                        caminho, custo = resultado
-                        print(f"Caminho mais curto de {inicio} a {fim}: {' -> '.join(caminho)} (Custo: {custo})")
-                    else:
-                        print(f"Não há caminho de {inicio} a {fim}.")
-
-                case 12:
-                    print("================== Autores =================\n")
-                    mostrar_desenhos()
-                    print("\n====================================================\n")                            
                 case _:
-                    print("Valor inserido invalido ")        
+                    print("Valor inserido inválido.")
+                    return
 
-                    
-
-        
     except ValueError:
      print("Error: Numero inserido invalido.")
     except Exception as e:
