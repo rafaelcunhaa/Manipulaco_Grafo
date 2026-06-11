@@ -1,0 +1,5 @@
+# Dependências externas do projeto Manipulação de Grafos
+# Instale com: pip install -r requirements.txt
+
+networkx
+matplotlib
