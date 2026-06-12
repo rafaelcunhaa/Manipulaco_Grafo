@@ -1,10 +1,10 @@
 import tkinter as tk
 
-def visualizar_rota_horizontal(caminho, custo_total=None, titulo="Rota do A*"):
+def visualizar_rota_horizontal(caminho, grafo, custo_total=None, titulo="Rota do A*"):
     janela = tk.Tk()
     janela.title(titulo)
 
-    largura = 1200
+    largura = max(1200, len(caminho) * 220)
     altura = 300
     canvas = tk.Canvas(janela, width=largura, height=altura, bg="white")
     canvas.pack()
@@ -29,12 +29,27 @@ def visualizar_rota_horizontal(caminho, custo_total=None, titulo="Rota do A*"):
         x1, y1 = posicoes[a]
         x2, y2 = posicoes[b]
 
+        # seta
         canvas.create_line(
             x1 + raio, y1,
             x2 - raio, y2,
             fill="green",
             width=4,
             arrow=tk.LAST
+        )
+
+        # distância do trecho
+        distancia = grafo[a][b]
+
+        meio_x = (x1 + x2) / 2
+        meio_y = y1 - 20
+
+        canvas.create_text(
+            meio_x,
+            meio_y,
+            text=f"{distancia} km",
+            font=("Arial", 10, "bold"),
+            fill="red"
         )
 
     # desenha os nós

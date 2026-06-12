@@ -406,6 +406,7 @@ def Algoritmo_A():
 
     visualizar_rota_horizontal(
     caminho_n,
+    grafo,
     custo_n,
     titulo="Cenário Normal"
     )
@@ -421,6 +422,7 @@ def Algoritmo_A():
 
     visualizar_rota_horizontal(
     caminho_c,
+    grafo_c,
     custo_c,
     titulo="Cenário com Congestionamento"
 )
