@@ -1,0 +1,151 @@
+{
+    "Aracajú": [
+        "Maceió",
+        "Salvador"
+    ],
+
+    "Belém": [
+        "São Luis",
+        "Palmas",
+        "Macapá"
+    ],
+
+    "Belo Horizonte": [
+        "Vitória",
+        "Rio de Janeiro",
+        "São Paulo",
+        "Brasília"
+    ],
+
+    "Boa Vista": [
+        "Manaus"
+    ],
+
+    "Brasília": [
+        "Goiânia",
+        "Belo Horizonte",
+        "Palmas",
+        "Cuiabá"
+    ],
+
+    "Campo Grande": [
+        "Cuiabá",
+        "Goiânia",
+        "São Paulo",
+        "Curitiba"
+    ],
+
+    "Cuiabá": [
+        "Campo Grande",
+        "Porto Velho",
+        "Palmas",
+        "Brasília"
+    ],
+
+    "Curitiba": [
+        "São Paulo",
+        "Florianópolis",
+        "Campo Grande"
+    ],
+
+    "Florianópolis": [
+        "Curitiba",
+        "Porto Alegre"
+    ],
+
+    "Fortaleza": [
+        "Natal",
+        "João Pessoa",
+        "Recife",
+        "Teresina"
+    ],
+
+    "Goiânia": [
+        "Brasília",
+        "Campo Grande",
+        "Cuiabá",
+        "Belo Horizonte"
+    ],
+
+    "João Pessoa": [
+        "Natal",
+        "Recife"
+    ],
+
+    "Maceió": [
+        "Recife",
+        "Aracajú"
+    ],
+
+    "Manaus": [
+        "Boa Vista",
+        "Porto Velho"
+    ],
+
+    "Natal": [
+        "João Pessoa",
+        "Fortaleza"
+    ],
+
+    "Palmas": [
+        "Belém",
+        "São Luis",
+        "Brasília",
+        "Cuiabá"
+    ],
+
+    "Porto Alegre": [
+        "Florianópolis"
+    ],
+
+    "Porto Velho": [
+        "Rio Branco",
+        "Manaus",
+        "Cuiabá"
+    ],
+
+    "Recife": [
+        "João Pessoa",
+        "Maceió",
+        "Fortaleza"
+    ],
+
+    "Rio Branco": [
+        "Porto Velho"
+    ],
+
+    "Rio de Janeiro": [
+        "Vitória",
+        "Belo Horizonte",
+        "São Paulo"
+    ],
+
+    "Salvador": [
+        "Aracajú",
+        "Belo Horizonte",
+        "Brasília"
+    ],
+
+    "São Luis": [
+        "Belém",
+        "Teresina",
+        "Palmas"
+    ],
+
+    "São Paulo": [
+        "Rio de Janeiro",
+        "Belo Horizonte",
+        "Curitiba",
+        "Campo Grande"
+    ],
+
+    "Teresina": [
+        "São Luis",
+        "Fortaleza"
+    ],
+
+    "Vitória": [
+        "Rio de Janeiro",
+        "Belo Horizonte"
+    ]
+}
