@@ -400,9 +400,6 @@ def Algoritmo_A():
     print(f"\n  Calculando rota normal: {cidade_inicio} → {cidade_fim} ...")
     caminho_n, custo_n, log_n = _astar_core(grafo, heuristicas, cidade_inicio, cidade_fim)
     _exibir_resultado("NORMAL", caminho_n, custo_n, log_n, cidade_inicio, cidade_fim)
-    print("\nDEBUG CAMINHO:")
-    print(caminho_n)
-    print("Quantidade de cidades:", len(caminho_n))
 
     visualizar_rota_horizontal(
     caminho_n,
