@@ -1,6 +1,6 @@
 import heapq
 import json
-
+from visualizacao_rota import visualizar_rota_horizontal
 
 # ===========================================================================
 #  UTILITÁRIOS DE CARREGAMENTO
@@ -16,10 +16,12 @@ def _carregar_arquivos():
     Retorna grafo como dict aninhado {origem: {destino: custo}}.
     Distâncias são espelhadas (não-dirigido) para garantir conectividade total.
     """
+    
     with open("distancias.json", "r", encoding="utf-8") as f:
         distancias_flat = json.load(f)
     with open("ibge.json", "r", encoding="utf-8") as f:
         heuristicas = json.load(f)
+        
 
     # Converter flat → nested e espelhar para grafo não-dirigido
     grafo = {}
@@ -137,6 +139,9 @@ def _astar_core(grafo: dict, heuristicas: dict, inicio: str, fim: str):
                 heapq.heappush(abertos_heap, (f_viz, novo_g, vizinho, caminho + [vizinho]))
                 abertos_set.add(vizinho)
 
+    print("\nPais:")
+    for filho, pai in pais.items():
+        print(f"{filho} <- {pai}")
     return None, 0, log_passos   # sem caminho possível
 
 
@@ -364,6 +369,9 @@ def Algoritmo_A():
     # ---- Carregar dados ----
     try:
         grafo, heuristicas = _carregar_arquivos()
+
+        print(len(grafo["Aracajú"]))
+        print(grafo["Aracajú"].keys())
     except FileNotFoundError as e:
         print(f"\n  ERRO: Arquivo não encontrado → {e}")
         print("  Certifique-se de que distancias.json e ibge.json estão na mesma pasta.")
@@ -382,6 +390,15 @@ def Algoritmo_A():
     print(f"\n  Calculando rota normal: {cidade_inicio} → {cidade_fim} ...")
     caminho_n, custo_n, log_n = _astar_core(grafo, heuristicas, cidade_inicio, cidade_fim)
     _exibir_resultado("NORMAL", caminho_n, custo_n, log_n, cidade_inicio, cidade_fim)
+    print("\nDEBUG CAMINHO:")
+    print(caminho_n)
+    print("Quantidade de cidades:", len(caminho_n))
+
+    visualizar_rota_horizontal(
+    caminho_n,
+    custo_n,
+    titulo="Cenário Normal"
+    )
 
     # ---- Configurar congestionamentos ----
     congestionamentos = _menu_congestionamento(grafo)
@@ -391,6 +408,12 @@ def Algoritmo_A():
     print(f"\n  Calculando rota com congestionamento: {cidade_inicio} → {cidade_fim} ...")
     caminho_c, custo_c, log_c = _astar_core(grafo_c, heuristicas, cidade_inicio, cidade_fim)
     _exibir_resultado("CONGESTIONAMENTO", caminho_c, custo_c, log_c, cidade_inicio, cidade_fim)
+
+    visualizar_rota_horizontal(
+    caminho_c,
+    custo_c,
+    titulo="Cenário com Congestionamento"
+)
 
     # ---- Comparação ----
     _comparar_cenarios(caminho_n, custo_n, caminho_c, custo_c,
