@@ -6,6 +6,31 @@ from visualizacao_rota import visualizar_rota_horizontal
 #  UTILITÁRIOS DE CARREGAMENTO
 # ===========================================================================
 
+def carregar_grafo_vizinhos():
+    with open("distancias.json", "r", encoding="utf-8") as f:
+        distancias = json.load(f)
+
+    with open("capitais_vizinhas.json", "r", encoding="utf-8") as f:
+        vizinhos = json.load(f)
+
+    grafo = {}
+
+    for cidade in vizinhos:
+        grafo[cidade] = {}
+
+        for vizinho in vizinhos[cidade]:
+
+            chave1 = f"{cidade}:{vizinho}"
+            chave2 = f"{vizinho}:{cidade}"
+
+            if chave1 in distancias:
+                grafo[cidade][vizinho] = distancias[chave1]
+
+            elif chave2 in distancias:
+                grafo[cidade][vizinho] = distancias[chave2]
+
+    return grafo
+
 def _carregar_arquivos():
     """
     Carrega e retorna (grafo_nested, heuristicas) a partir dos JSONs.
@@ -24,7 +49,7 @@ def _carregar_arquivos():
         
 
     # Converter flat → nested e espelhar para grafo não-dirigido
-    grafo = {}
+    grafo = carregar_grafo_vizinhos()
     for chave, dist in distancias_flat.items():
         if dist == 0:           # auto-loops não são arestas úteis
             continue
