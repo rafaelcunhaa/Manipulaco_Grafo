@@ -42,25 +42,10 @@ def _carregar_arquivos():
     Distâncias são espelhadas (não-dirigido) para garantir conectividade total.
     """
     
-    with open("distancias.json", "r", encoding="utf-8") as f:
-        distancias_flat = json.load(f)
     with open("ibge.json", "r", encoding="utf-8") as f:
         heuristicas = json.load(f)
-        
 
-    # Converter flat → nested e espelhar para grafo não-dirigido
     grafo = carregar_grafo_vizinhos()
-    for chave, dist in distancias_flat.items():
-        if dist == 0:           # auto-loops não são arestas úteis
-            continue
-        # maxsplit=1 garante segurança com nomes como "Rio de Janeiro"
-        partes = chave.split(":", 1)
-        if len(partes) != 2:
-            continue
-        origem, destino = partes[0].strip(), partes[1].strip()
-
-        grafo.setdefault(origem,  {})[destino] = dist
-        grafo.setdefault(destino, {})[origem]  = dist   # espelha
 
     return grafo, heuristicas
 
